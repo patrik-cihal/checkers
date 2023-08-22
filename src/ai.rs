@@ -1,7 +1,6 @@
-use super::*;
+use rand::{thread_rng, seq::SliceRandom};
 
-const LOST: i64 = -1_000_000;
-const WIN: i64 = 1_000_000;
+use super::*;
 
 pub struct AI {}
 
@@ -17,14 +16,18 @@ impl AI {
         Self {}
     }
     pub fn compute_move(&mut self, board: &Board) -> PieceMove {
+
         let mut board = board.clone();
 
-        let to_explore = if board.must_jump.len() != 0 {
+        let mut to_explore = if board.must_jump.len() != 0 {
             board.must_jump.clone()
         }
         else {
             board.piece_pos(board.turn)
         };
+
+        let mut rng = thread_rng();
+        to_explore.shuffle(&mut rng);
 
         let to_explore = sort_by_heuristic(board.clone(), to_explore, heuristic);
 
@@ -135,73 +138,7 @@ fn nminimax(mut board: Board, depth: u16) -> i64 {
 }
 
 fn dminimax(mut board: Board, depth: u16, mut alpha: i64, beta: i64) -> i64 {
-    if depth >= 10 && board.must_jump.len() == 0 {
-        return simple_heuristic(&board);
-    }
-    let to_explore = if board.must_jump.len() != 0 {
-        board.must_jump.clone()
-    }
-    else {
-        board.piece_pos(board.turn)
-    }; 
-    let old_board = board.clone();
-
-
-    let mut bst = LOST;
-
-    for cp in to_explore {
-        for dir in DIRS {
-            let pm = PieceMove {pos: cp, dir};
-            if board.make_move(pm) {
-                let score = if board.turn == old_board.turn {
-                    dminimax(board, depth+1, alpha, beta)
-                }
-                else {
-                    -dminimax(board, depth+1, -beta, -alpha)
-                };
-                
-
-                if score > bst {
-                    bst = score;
-                }
-                if score > alpha {
-                    alpha = score;
-                    if alpha >= beta {
-                        return bst;
-                    }
-                }
-
-                board = old_board.clone();
-            }
-        }
-    }
-    return bst;
-}
-
-const MAX_COMPUTE: i64 = 1_000_000;
-
-pub fn sort_by_heuristic<T: Fn(&Board) -> i64>(mut board: Board, poss: Vec<CellPos>, h_fn: T) -> Vec<CellPos> {
-    let old_board = board.clone();
-    let mut poss = poss.into_iter().map(|cp| {
-        let mut lbst = LOST;
-        for dir in DIRS {
-            let pm = PieceMove {pos: cp, dir};
-            if board.make_move(pm) {
-                let score = ori_score(heuristic(&board), old_board.turn, board.turn);
-                lbst = lbst.max(score);
-                board = old_board.clone();
-            }
-        }
-        (lbst, cp)
-    }).collect::<Vec<_>>();
-
-    poss.sort_by_key(|x| x.0);
-    poss.reverse();
-    poss.into_iter().map(|(_, cp)| cp).collect::<Vec<_>>()
-}
-
-fn cminimax(mut board: Board, depth: u16, mut alpha: i64, beta: i64) -> i64 {
-    if depth >= 7 && board.must_jump.len() == 0 {
+    if depth >= 6 && board.must_jump.len() == 0 {
         return heuristic(&board);
     } 
     let to_explore = if board.must_jump.len() != 0 {
@@ -218,12 +155,13 @@ fn cminimax(mut board: Board, depth: u16, mut alpha: i64, beta: i64) -> i64 {
     for cp in to_explore {
         for dir in DIRS {
             let pm = PieceMove {pos: cp, dir};
+            let ndepth = if board.must_jump.len() != 1 {depth+1} else {depth};
             if board.make_move(pm) {
                 let score = if board.turn == old_board.turn {
-                    cminimax(board, depth+1, alpha, beta)
+                    dminimax(board, ndepth, alpha, beta)
                 }
                 else {
-                    -cminimax(board, depth+1, -beta, -alpha)
+                    -dminimax(board, ndepth, -beta, -alpha)
                 };
                 
 
@@ -239,11 +177,12 @@ fn cminimax(mut board: Board, depth: u16, mut alpha: i64, beta: i64) -> i64 {
         }
     }
     return alpha;
-
 }
 
+const MAX_COMPUTE: i64 = 1_000_000;
+
 fn evaluate(board: Board) -> i64 {
-    let eval = cminimax(board, 0, LOST, WIN);
+    let eval = dminimax(board, 0, LOST, WIN);
     return eval;
 }
 

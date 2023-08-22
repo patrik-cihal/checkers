@@ -13,8 +13,8 @@ fn main() {
     //     return;
     // }
 
-    let ai2_path = "/home/patrik/Code/Games/dama/target/release/alpha_beta_heur_sort_mult";
-    let ai1_path = "/home/patrik/Code/Games/dama/target/release/alpha_beta_no_sort";
+    let ai1_path = "/home/patrik/Code/Games/dama/target/release/ab_ns_rnd";
+    let ai2_path = "/home/patrik/Code/Games/dama/filip_v6";
 
     let mut board = Board::new();
 
@@ -50,15 +50,17 @@ fn main() {
     const MAX_MOVES: u32 = 200;
 
     let mut cnt_moves = 0;
-    let mut games_to_play = 15;
+    let mut cgame = 0;
+    let games_total = 10;
 
     let mut time1 = 0;
     let mut time2 = 0;
 
 
-    while games_to_play != 0 {
+    while cgame != games_total {
         println!("{}", board);
         println!("{}", board.turn);
+        println!("move: {}", cnt_moves);
 
         if !board.exists_valid_move() || cnt_moves > MAX_MOVES {
 
@@ -81,7 +83,7 @@ fn main() {
                 evals.push(-heur);
             }
             cnt_moves = 0;
-            games_to_play -= 1;
+            cgame += 1;
             ai1_color = -ai1_color;
             ai2_color = -ai2_color;
             writeln!(ai1_stdin, "{}", ai1_color).unwrap();
@@ -115,21 +117,22 @@ fn main() {
 
 
         ai_out = ai_out.trim().to_string();
-        let mv = PieceMove::from_str(&ai_out);
+        let mut mv = PieceMove::from_str(&ai_out);
         // allow user to make move
-        // if board.turn == Color::Black {
-        //     mv = PieceMove::from_stdin(&mut main_stdin);
-        // }
+        if board.turn == Color::Black {
+            mv = PieceMove::from_stdin(&mut main_stdin);
+        }
 
-        if !board.make_move(mv) {
+        while !board.make_move(mv) {
+            mv = PieceMove::from_stdin(&mut main_stdin);
             println!("AI {} made invalid move {} (loser).", if board.turn==ai1_color { 1 } else { 2 }, mv);
-            break;
         }
     }
     writeln!(ai1_stdin, "exit").unwrap();
     writeln!(ai2_stdin, "exit").unwrap();
 
     evals.sort();
+    println!("{:?}", evals);
 
-    println!("AI1 wins: {}; AI2 wins: {}; ties: {}; AI1 time: {}; AI2 time: {}; median eval: {}", wins1, wins2, ties, time1, time2, evals[evals.len()/2]);
+    println!("AI1 wins: {}; AI2 wins: {}; ties: {}; AI1 time: {}; AI2 time: {}; median eval: {}", wins1, wins2, ties, time1/games_total, time2/games_total, evals[evals.len()/2]);
 }

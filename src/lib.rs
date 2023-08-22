@@ -2,6 +2,10 @@ use std::{ops::{Neg, Index, IndexMut}, fmt::Display, io::Stdin};
 
 pub const DIRS: [MoveDir; 4] = [MoveDir::TopLeft, MoveDir::TopRight, MoveDir::DownLeft, MoveDir::DownRight];
 
+pub const LOST: i64 = -1_000_000;
+pub const WIN: i64 = 1_000_000;
+
+
 #[derive(Clone, PartialEq, Eq, Copy, Default)]
 pub enum Color {
     White,
@@ -523,4 +527,25 @@ pub fn heuristic(board: &Board) -> i64 {
         res += lres*mp;
     }
     res
+}
+
+pub fn sort_by_heuristic<T: Fn(&Board) -> i64>(mut board: Board, poss: Vec<CellPos>, h_fn: T) -> Vec<CellPos> {
+    let old_board = board.clone();
+    let mut poss = poss.into_iter().map(|cp| {
+        let mut lbst = LOST;
+        for dir in DIRS {
+            let pm = PieceMove {pos: cp, dir};
+            if board.make_move(pm) {
+                let heur = heuristic(&board);
+                let score = if old_board.turn == board.turn {heur} else {-heur};
+                lbst = lbst.max(score);
+                board = old_board.clone();
+            }
+        }
+        (lbst, cp)
+    }).collect::<Vec<_>>();
+
+    poss.sort_by_key(|x| x.0);
+    poss.reverse();
+    poss.into_iter().map(|(_, cp)| cp).collect::<Vec<_>>()
 }
