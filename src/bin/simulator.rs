@@ -13,7 +13,7 @@ fn main() {
     //     return;
     // }
     
-    let ai1_path = "/home/patrik/Code/Games/checkers/target/release/interactive";
+    let ai1_path = "/home/patrik/Code/Games/checkers/versions/ns_opt";
     let ai2_path = "/home/patrik/Code/Games/checkers/target/release/checkers";
 
     let mut board = Board::new();
@@ -51,7 +51,7 @@ fn main() {
 
     let mut cnt_moves = 0;
     let mut cgame = 0;
-    let games_total = 10;
+    let games_total = 30;
 
     let mut time1 = 0;
     let mut time2 = 0;

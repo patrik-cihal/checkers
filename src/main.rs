@@ -34,6 +34,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         let mut board = Board::from_stdin(&stdin);
         board.turn = color;
         board.must_jump = must_jump;
+        board.recompute_hash();
 
         // eprintln!("Parsed board: \n{}", board);
 
