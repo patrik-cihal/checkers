@@ -1,7 +1,7 @@
 use std::{io::{Stdin, BufReader, BufRead}, process::{Command, Stdio}};
 use std::io::Write;
 
-use dama::*;
+use checkers::*;
 
 fn main() {
     let mut main_stdin = std::io::stdin();
@@ -12,9 +12,9 @@ fn main() {
     //     eprintln!("Usage: {} <path_to_ai1_binary> <path_to_ai2_binary>", args[0]);
     //     return;
     // }
-
-    let ai1_path = "/home/patrik/Code/Games/dama/target/release/ab_ns_rnd";
-    let ai2_path = "/home/patrik/Code/Games/dama/filip_v6";
+    
+    let ai1_path = "/home/patrik/Code/Games/checkers/target/release/interactive";
+    let ai2_path = "/home/patrik/Code/Games/checkers/target/release/checkers";
 
     let mut board = Board::new();
 
@@ -117,15 +117,11 @@ fn main() {
 
 
         ai_out = ai_out.trim().to_string();
-        let mut mv = PieceMove::from_str(&ai_out);
-        // allow user to make move
-        if board.turn == Color::Black {
-            mv = PieceMove::from_stdin(&mut main_stdin);
-        }
+        let mv = PieceMove::from_str(&ai_out);
 
-        while !board.make_move(mv) {
-            mv = PieceMove::from_stdin(&mut main_stdin);
+        if !board.make_move(mv) {
             println!("AI {} made invalid move {} (loser).", if board.turn==ai1_color { 1 } else { 2 }, mv);
+            break;
         }
     }
     writeln!(ai1_stdin, "exit").unwrap();

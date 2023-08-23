@@ -138,7 +138,7 @@ fn nminimax(mut board: Board, depth: u16) -> i64 {
 }
 
 fn dminimax(mut board: Board, depth: u16, mut alpha: i64, beta: i64) -> i64 {
-    if depth >= 6 && board.must_jump.len() == 0 {
+    if depth >= 8 && board.must_jump.len() == 0 {
         return heuristic(&board);
     } 
     let to_explore = if board.must_jump.len() != 0 {

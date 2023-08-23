@@ -69,6 +69,9 @@ impl Display for CellPos {
 }
 
 impl CellPos {
+    pub fn new(row: usize, col: usize) -> Self {
+        Self {col, row}
+    }
     pub fn from_str(s: &str) -> Self {
         let mut ch = s.chars();
 
@@ -548,4 +551,9 @@ pub fn sort_by_heuristic<T: Fn(&Board) -> i64>(mut board: Board, poss: Vec<CellP
     poss.sort_by_key(|x| x.0);
     poss.reverse();
     poss.into_iter().map(|(_, cp)| cp).collect::<Vec<_>>()
+}
+
+
+pub fn cell(row: usize, col: usize) -> CellPos {
+    return CellPos::new(row, col);
 }

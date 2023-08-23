@@ -1,5 +1,5 @@
 use std::{io::{stdin, Stdin}, ops::{IndexMut, Index, Neg}, fmt::Display, error::Error};
-use dama::*;
+use checkers::*;
 
 mod ai;
 use ai::AI;
