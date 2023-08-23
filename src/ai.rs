@@ -155,6 +155,10 @@ fn dhminimax(mut board: Board, depth: i16, mut alpha: i64, beta: i64, (transp_ta
     else {
         board.piece_pos(board.turn)
     }; 
+
+    if to_explore.len() == 0 {
+        return LOST-depth as i64*100;
+    }
     
     let old_board = board.clone();
 
@@ -243,7 +247,7 @@ fn evaluate(board: Board) -> i64 {
     let mut overwritten = 0;
     let mut utilized = 0;
     // eprintln!("Board hash: {}", board.hash);
-    let eval = dhminimax(board, 6, LOST, WIN, (&mut Default::default(), &mut overwritten, &mut utilized));
+    let eval = dhminimax(board, 9, LOST, WIN, (&mut Default::default(), &mut overwritten, &mut utilized));
     // eprintln!("Overwritten: {}; utilized: {}", overwritten, utilized);
     return eval;
 }

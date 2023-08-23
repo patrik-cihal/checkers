@@ -13,7 +13,7 @@ fn main() {
     //     return;
     // }
     
-    let ai1_path = "/home/patrik/Code/Games/checkers/versions/ns_opt";
+    let ai1_path = "/home/patrik/Code/Games/checkers/target/release/interactive";
     let ai2_path = "/home/patrik/Code/Games/checkers/target/release/checkers";
 
     let mut board = Board::new();
@@ -30,7 +30,7 @@ fn main() {
         .spawn()
         .expect("Failed to start AI 2");    
 
-    let mut ai1_color = Color::White;
+    let mut ai1_color = Color::Black;
     let mut ai2_color = -ai1_color;
 
     let mut ai1_stdin = ai1_child.stdin.as_mut().unwrap();
